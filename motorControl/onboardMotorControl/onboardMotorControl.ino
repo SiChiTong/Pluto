@@ -14,6 +14,9 @@
 #define LEFT_MOTOR    0
 #define RIGHT_MOTOR   0
 
+#define CURR_ADVANCE  0
+#define CURR_BACKOFF  1
+
 #define SPD_M_LEFT    6     // M left Speed Control
 #define SPD_M_RIGHT   5     // M right Speed Control
 #define DIR_M_LEFT    7     // M left Direction Control
@@ -41,6 +44,7 @@ void setup(void)
   }
   //Initialize serial port  
   Serial.begin(115200);
+  Serial.setTimeout(10);
   Serial.println("[INFO]:Initialized serial console");
   
   //------------------------------------------------------------
@@ -49,21 +53,19 @@ void setup(void)
 
   // LEFT motor
   // Encoder pin B as input
-  pinMode(ENC_M_LEFT_A, INPUT);
   pinMode(ENC_M_LEFT_B, INPUT);
 
   // Attach interrupt. Gets called everytime a signal is
   // detected
-  attachInterrupt(0, leftMotorMovedISR, CHANGE);// int.0
+  attachInterrupt(0, leftMotorMovedISR, FALLING);// int.0
 
   // RIGHT motor
   // Encoder pin B as input
-  pinMode(ENC_M_RIGHT_A, INPUT);
   pinMode(ENC_M_RIGHT_B, INPUT);  
 
   // Attach interrupt. Gets called everytime a signal is
   // detected
-  attachInterrupt(1, rightMotorMovedISR, CHANGE);// int.1
+  attachInterrupt(1, rightMotorMovedISR, FALLING);// int.1
   Serial.println("[INFO]:done"); 
 }
 
@@ -73,7 +75,10 @@ volatile unsigned int TargetPosLeft  = 0;
 volatile unsigned int TargetPosRight = 0;
 volatile bool trackLeft  = false;
 volatile bool trackRight = false;
-volatile unsigned int temp = 300;
+volatile unsigned int temp = 1;  // 663:steps/rev
+volatile unsigned spd = 100;
+volatile bool LeftCurrDir  = CURR_ADVANCE;
+volatile bool RightCurrDir = CURR_ADVANCE;
 
 //--------------------------------------------------------------
 // Standard arduino loop routine
@@ -88,13 +93,23 @@ void loop()
       LeftMPos = 0;
       TargetPosLeft = 0;
       trackLeft = false;
+      Serial.println("LIDLE");
     }
     else
     {
+      analogWrite (SPD_M_LEFT,spd);
       Serial.print(LeftMPos);
-      Serial.println(" LDONE");
+      if(LeftCurrDir == CURR_BACKOFF)
+      {
+        Serial.print(":B:");              
+      }
+      else
+      {
+        Serial.print(":A:");        
+      }
+      Serial.println("LDONE");
     }
-  }  
+  }
   if(trackRight)
   {
     if(RightMPos > TargetPosRight)
@@ -103,14 +118,23 @@ void loop()
       RightMPos = 0;
       TargetPosRight = 0;
       trackRight = false;
+      Serial.println("RIDLE");      
     }
     else
     {
+      analogWrite (SPD_M_RIGHT,spd);      
       Serial.print(RightMPos);
-      Serial.println(" RDONE");
+      if(RightCurrDir == CURR_BACKOFF)
+      {
+        Serial.print(":B:");              
+      }
+      else
+      {
+        Serial.print(":A:");        
+      }
+      Serial.println("RDONE");
     }    
   }
-
 }
 
 //--------------------------------------------------------------
@@ -220,8 +244,34 @@ void backoff(char a,char b)
 void serialEvent()
 {  
   char command = Serial.read();
-  Serial.println(command);
-
+  if(command == 'r')
+  {
+    int spdInpt = Serial.parseInt();
+    if(spdInpt >= 0 && spdInpt <= 255)
+    {
+      spd = spdInpt;
+      Serial.print(spd);
+    }
+    else
+    {
+      return;
+    }
+  }
+  else
+  if(command == 'f')
+  {
+    int target = Serial.parseInt();
+    if(target >= 1 && target <= 663)
+    {
+      temp = target;
+      Serial.print(temp);
+    }
+    else
+    {
+      return;
+    }
+  }
+  else
   if(command == 'w')
   {
     TargetPosLeft = temp;    
@@ -230,8 +280,9 @@ void serialEvent()
     RightMPos = 0;    
     trackLeft = true;
     trackRight = true;    
-    advance(255, 255);
+    advance(spd, spd);
   }
+  else
   if(command == 's')
   {
     TargetPosLeft = temp;    
@@ -240,8 +291,9 @@ void serialEvent()
     RightMPos = 0;        
     trackLeft = true;
     trackRight = true;    
-    backoff(255, 255); 
+    backoff(spd, spd); 
   }
+  else  
   if(command == 'a')
   {
     TargetPosLeft = temp;    
@@ -250,8 +302,9 @@ void serialEvent()
     RightMPos = 0;    
     trackLeft = true;
     trackRight = true;    
-    turn_L(255, 255);
+    turn_L(spd, spd);
   }
+  else  
   if(command == 'd')
   {
     TargetPosLeft = temp;    
@@ -260,49 +313,68 @@ void serialEvent()
     RightMPos = 0;        
     trackLeft = true;
     trackRight = true;    
-    turn_R(255, 255); 
+    turn_R(spd, spd); 
   }
+  else  
   if(command == 'q')
   {
     TargetPosLeft = temp;
     LeftMPos = 0;
     trackLeft = true;
-    turn_L_only_advance(255);
+    turn_L_only_advance(spd);
   }
+  else  
   if(command == 'e')
   {
     TargetPosRight = temp;
     RightMPos = 0;
     trackRight = true;    
-    turn_R_only_advance(255);
-  }  
+    turn_R_only_advance(spd);
+  }
+  else  
   if(command == 'z')
   {
     TargetPosLeft = temp;
     LeftMPos = 0;
     trackLeft = true;
-    turn_L_only_backoff(255);
+    turn_L_only_backoff(spd);
   }
+  else  
   if(command == 'c')
   {
     TargetPosRight = temp;
     RightMPos = 0;
     trackRight = true;    
-    turn_R_only_backoff(255);
-  }    
+    turn_R_only_backoff(spd);
+  }
+  else  
   if(command == 'x')
   {
     TargetPosLeft  = 0;
     TargetPosRight = 0;
+    LeftMPos = 0;
+    RightMPos = 0;
+    trackLeft = false;
+    trackRight = false;        
+    stopMotors(LEFT_MOTOR);
+    stopMotors(RIGHT_MOTOR);    
   }
+  else
+  {
+    return;
+  }
+  Serial.println(':');
+  Serial.flush();
 }
 
 void leftMotorMovedISR()
 {
   LeftMPos++;
+  LeftCurrDir = digitalRead(ENC_M_LEFT_B);
 }
 
 void rightMotorMovedISR()
 {
   RightMPos++;
+  RightCurrDir = digitalRead(ENC_M_RIGHT_B);  
 }

@@ -12,9 +12,11 @@ Pin 4  MRight Direction Control
 663 pulses per rotation
 Senses 0.54 degree rotation
 
-Pin 2 MLeft   A-encoder Pin
-Pin 4 MRight  B-encoder Pin
+(interrupt) Pin 2 MLeft   A-encoder Pin
+(interrupt) Pin 3 MRight  A-encoder Pin
 
+Pin 8  MLeft   B-encoder Pin
+Pin 12 MRight  B-encoder Pin
 
 
 [Sample code]
