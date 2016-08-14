@@ -79,6 +79,8 @@ volatile unsigned int temp = 1;  // 663:steps/rev
 volatile unsigned spd = 100;
 volatile bool LeftCurrDir  = CURR_ADVANCE;
 volatile bool RightCurrDir = CURR_ADVANCE;
+volatile unsigned int currSpdLeft  = 0;
+volatile unsigned int currSpdRight = 0;
 
 //--------------------------------------------------------------
 // Standard arduino loop routine
@@ -97,7 +99,11 @@ void loop()
     }
     else
     {
-      analogWrite (SPD_M_LEFT,spd);
+      if(currSpdLeft < spd)
+      {
+        currSpdLeft++;
+      }
+      analogWrite (SPD_M_LEFT,currSpdLeft);
       Serial.print(LeftMPos);
       if(LeftCurrDir == CURR_BACKOFF)
       {
@@ -122,7 +128,11 @@ void loop()
     }
     else
     {
-      analogWrite (SPD_M_RIGHT,spd);      
+      if(currSpdRight < spd)
+      {
+        currSpdRight++;
+      }            
+      analogWrite (SPD_M_RIGHT,currSpdRight);      
       Serial.print(RightMPos);
       if(RightCurrDir == CURR_BACKOFF)
       {
@@ -280,6 +290,8 @@ void serialEvent()
     RightMPos = 0;    
     trackLeft = true;
     trackRight = true;    
+    currSpdLeft = 0;
+    currSpdRight = 0;    
     advance(spd, spd);
   }
   else
@@ -290,7 +302,9 @@ void serialEvent()
     LeftMPos = 0;
     RightMPos = 0;        
     trackLeft = true;
-    trackRight = true;    
+    trackRight = true;
+    currSpdLeft = 0;
+    currSpdRight = 0;        
     backoff(spd, spd); 
   }
   else  
@@ -301,7 +315,9 @@ void serialEvent()
     LeftMPos = 0;
     RightMPos = 0;    
     trackLeft = true;
-    trackRight = true;    
+    trackRight = true;
+    currSpdLeft = 0;
+    currSpdRight = 0;        
     turn_L(spd, spd);
   }
   else  
@@ -312,7 +328,9 @@ void serialEvent()
     LeftMPos = 0;
     RightMPos = 0;        
     trackLeft = true;
-    trackRight = true;    
+    trackRight = true;   
+    currSpdLeft = 0;
+    currSpdRight = 0;        
     turn_R(spd, spd); 
   }
   else  
@@ -321,6 +339,9 @@ void serialEvent()
     TargetPosLeft = temp;
     LeftMPos = 0;
     trackLeft = true;
+    currSpdLeft = 0;
+    currSpdRight = 0;        
+    currSpdLeft = 0;
     turn_L_only_advance(spd);
   }
   else  
@@ -329,6 +350,7 @@ void serialEvent()
     TargetPosRight = temp;
     RightMPos = 0;
     trackRight = true;    
+    currSpdRight = 0;    
     turn_R_only_advance(spd);
   }
   else  
@@ -337,6 +359,7 @@ void serialEvent()
     TargetPosLeft = temp;
     LeftMPos = 0;
     trackLeft = true;
+    currSpdLeft = 0;
     turn_L_only_backoff(spd);
   }
   else  
@@ -345,6 +368,7 @@ void serialEvent()
     TargetPosRight = temp;
     RightMPos = 0;
     trackRight = true;    
+    currSpdRight = 0;    
     turn_R_only_backoff(spd);
   }
   else  
@@ -356,6 +380,8 @@ void serialEvent()
     RightMPos = 0;
     trackLeft = false;
     trackRight = false;        
+    currSpdLeft = 0;
+    currSpdRight = 0;    
     stopMotors(LEFT_MOTOR);
     stopMotors(RIGHT_MOTOR);    
   }
@@ -371,10 +397,12 @@ void leftMotorMovedISR()
 {
   LeftMPos++;
   LeftCurrDir = digitalRead(ENC_M_LEFT_B);
+  Serial.println("left++");
 }
 
 void rightMotorMovedISR()
 {
   RightMPos++;
   RightCurrDir = digitalRead(ENC_M_RIGHT_B);  
+  Serial.println("right++");
 }
