@@ -1,3 +1,6 @@
+#define NAME        "Ir Sensors"
+#define VERSION     "pluto-0.0.1"
+
 void setup() {
   Serial.begin(115200);
   Serial.println("Initializing sensors");
@@ -61,6 +64,22 @@ void serialEvent()
     Serial.println(":");
     return;    
   }
+  if(command=='v')
+  {
+    Serial.print(NAME);
+    Serial.print(",");
+    Serial.println(VERSION);
+  }
+  if(command=='h')
+  {
+    Serial.println("Available commands:");
+    Serial.println("e -enable ir sensor stream");
+    Serial.println("d -disable ir sensor stream");
+    Serial.println("v -get firmware name and version number");
+    Serial.println("analogPins   -0,1,2,3,4");
+    Serial.println("digitalPins  -4,8,12");
+  }
+
   Serial.println("?");
   return;
 }

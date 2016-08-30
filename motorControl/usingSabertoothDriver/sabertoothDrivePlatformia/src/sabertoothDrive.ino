@@ -33,6 +33,9 @@
 
 #include <SoftwareSerial.h>
 
+#define NAME    "Sabertooth Motor Drive"
+#define VERSION "pluto-0.0.1"
+
 SoftwareSerial motor(5,6); // 5-orange, 6-brown
 
 //--------------------------------------------------------------
@@ -449,11 +452,17 @@ void serialEvent()
   }  
   if(command=='f')  // get current speed
   {
-      Serial.print(currLeftSpd);
-      Serial.print(":");
-      Serial.print(currRightSpd);
-      Serial.println(":");
-      return;
+    Serial.print(currLeftSpd);
+    Serial.print(":");
+    Serial.print(currRightSpd);
+    Serial.println(":");
+    return;
+  }
+  if(command=='v')
+  {
+    Serial.print(NAME);
+    Serial.print(",");
+    Serial.println(VERSION);  
   }
 
   //--------------------------------------------------------------
