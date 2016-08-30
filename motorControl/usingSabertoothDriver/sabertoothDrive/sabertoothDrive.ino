@@ -4,8 +4,8 @@
 //
 //--------------------------------------------------------------
 // Platform: Pluto
-// Program that runs on DfRobot romeo 1.3 board to control
-// left and right motors.
+// Program that runs on Arduino uno and controls sabertooth
+// 2x12 Amps motor driver.
 //--------------------------------------------------------------
 //
 // Usage:
@@ -24,7 +24,8 @@
 // r<speed> -Reset speed
 // t<speed> -Reset speed of left
 // y<speed> -Reset speed of right
-//
+// f        -Get current speed, returns- "L30:R40" (for example)
+// 4,7,10,11,13 are for safety switches
 // Example: w20 -Moves 20 steps forward
 //          r40 -Resets speed to 40 
 //               (Speed range: 1-63 in both directions)
@@ -39,11 +40,6 @@ SoftwareSerial motor(5,6); // 5-orange, 6-brown
 // 128-256 :   Right motor
 // Center(64, 192) stop respectively
 //--------------------------------------------------------------
-#define SPDZERO_LEFT     64
-#define SPDZERO_RIGHT   192
-
-#define FWD               1
-#define REV               0
 
 //--------------------------------------------------------------
 // Motor encoder pin configuration
@@ -56,6 +52,9 @@ SoftwareSerial motor(5,6); // 5-orange, 6-brown
 
 // Encoder steps in one revolution
 #define STEPS_IN_ONE_REV    663
+
+// Safety switch pins
+byte SafetySwitchPins[5] = {4,7,10,11,13};
 
 //--------------------------------------------------------------
 // Standard arduino setup routine
@@ -70,28 +69,39 @@ void setup()
   //------------------------------------------------------------  
   // Initialize software serial to send commands to sabertooth
   // controller  
+  Serial.println("[INFO]:Initializing software serial for sabertooth..");
   motor.begin(19200);  
   delay(100);
 
   //------------------------------------------------------------
   //Initialize encoder requirements
-  Serial.println("[INFO]:Initializing encoder interrupts..");
+  Serial.println("[INFO]:Initializing encoder pins..");
     
   // LEFT motor
   // Encoder pin B as input
   pinMode(ENC_M_LEFT_B, INPUT);
-
-  // Attach interrupt. Gets called everytime a signal is
-  // detected
-  attachInterrupt(1, leftMotorMovedISR, FALLING);// int.0
-
   // RIGHT motor
   // Encoder pin B as input
   pinMode(ENC_M_RIGHT_B, INPUT);  
 
+  Serial.println("[INFO]:Initializing encoder interrupts..");
+  // Attach interrupt. Gets called everytime a signal is
+  // detected
+  attachInterrupt(1, leftMotorMovedISR, FALLING);// int.0
   // Attach interrupt. Gets called everytime a signal is
   // detected
   attachInterrupt(0, rightMotorMovedISR, FALLING);// int.1
+
+  //------------------------------------------------------------
+  // Initializing safety switched
+  Serial.println("[INFO]:Initializing safety switches..");
+  pinMode(4, INPUT);
+  pinMode(7, INPUT);
+  pinMode(10, INPUT);
+  pinMode(11, INPUT);
+  pinMode(13, INPUT);
+
+  Serial.println("[INFO]:Initialization complete..");
 }
 
 
@@ -209,8 +219,19 @@ void rightMotorMovedISR()
 //--------------------------------------------------------------
 void loop() 
 {
-
-  delay(100);
+/*
+  for(int p=0; p<5; p++)
+  {
+    if(HIGH == digitalRead(SafetySwitchPins[p]))
+    {
+      stopLeft();
+      stopRight();
+      Serial.print(SafetySwitchPins[p]);
+      Serial.println(":UNSAFE:");
+    }
+  }
+*/
+  delay(1000);
 }
 
 //--------------------------------------------------------------
@@ -426,9 +447,102 @@ void serialEvent()
     Serial.println(":");
     return;
   }  
+  if(command=='f')  // get current speed
+  {
+      Serial.print(currLeftSpd);
+      Serial.print(":");
+      Serial.print(currRightSpd);
+      Serial.println(":");
+      return;
+  }
+
+  //--------------------------------------------------------------
+  // Help
+  //--------------------------------------------------------------
+  if(command=='h')  // help
+  {
+Serial.println(
+"--------------------------------------------------------------"
+);
+Serial.println(
+"Platform: Pluto"
+);
+Serial.println(
+"Program that runs on Arduino uno and controls sabertooth"
+);
+Serial.println(
+"2x12 Amps motor driver."
+);
+Serial.println(
+"--------------------------------------------------------------"
+);
+Serial.println(
+"Usage:"
+);
+
+Serial.println(
+"Serial commands at 115200:"
+);
+Serial.println(
+"w<steps> -Move forward"
+);
+Serial.println(
+"s<steps> -Move reverse"
+);
+Serial.println(
+"a<steps> -Move left"
+);
+Serial.println(
+"d<steps> -Move right"
+);
+Serial.println(
+"q<steps> -Move left forward"
+);
+Serial.println(
+"z<steps> -Move left reverse"
+);
+Serial.println(
+"e<steps> -Move right forward"
+);
+Serial.println(
+"c<steps> -Move right reverse"
+);
+Serial.println(
+"x        -Stop"
+);
+Serial.println(
+"r<speed> -Reset speed"
+);
+Serial.println(
+"t<speed> -Reset speed of left"
+);
+Serial.println(
+"y<speed> -Reset speed of right"
+);
+Serial.println(
+"f        -Get current speed, returns- 'L30:R40' (for example)"
+);
+Serial.println(
+"4,7,10,11,13 are for safety switches"
+);
+Serial.println(
+"Example: w20 -Moves 20 steps forward"
+);
+Serial.println(
+"         r40 -Resets speed to 40 "
+);
+Serial.println(
+"              (Speed range: 1-63 in both directions)"
+);
+Serial.println(
+"--------------------------------------------------------------"
+);
+    Serial.println(":");
+    return;
+  }
 
   // Should never return here
   // ? is command unknown
-  Serial.println("?");  
+  Serial.println("?");
 }
 
