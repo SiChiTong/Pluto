@@ -34,8 +34,8 @@
 
 #include <SoftwareSerial.h>
 
-#define NAME    "Sabertooth Motor Drive"
-#define VERSION "pluto-0.0.1"
+#define NAME    "Name:Sabertooth Motor Drive"
+#define VERSION "Version:pluto-0.0.1"
 
 SoftwareSerial motor(5,6); // 5-orange, 6-brown
 
