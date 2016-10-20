@@ -1,0 +1,39 @@
+Helpful link:
+
+http://hintshop.ludvig.co.nz/show/persistent-names-usb-serial-devices/
+
+STEPS:
+-----------------------------
+
+1. Find Vendor and Product ID
+
+lsusb
+
+
+2. Find Serial number
+
+udevadm info -a -n /dev/ttyUSB0 | grep '{serial}' | head -n1
+
+
+3. Create file named "99-your-name.rules"(example) under /dev/udev/rules.d/
+
+
+4. Add following to the 99* file.
+
+example:
+
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403",
+ATTRS{idProduct}=="6001", ATTRS{serial}=="A6008isP",
+SYMLINK+="YOUR_CUSTOM_DEVICE_NAME"
+
+
+5. Reload rules
+
+udevadm control --reload-rules
+
+
+6. Unplug the device and plug it back in
+
+7. Check /dev/
+
+-----------------------------
