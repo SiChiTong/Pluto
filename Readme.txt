@@ -1,6 +1,1 @@
-Battery Info.
-
-12.9V + 100%
-12.5V = 75%
-12.2V = 50%
-11.9V = 25%
+Pluto is a home enviornment robot. Featues- timely surveillance, taking pictures at critical preset points, control home smart devices, set home temperature, read weather forecast, auto charge itself, obstacle avoidance, localization, auto routing from point A to B, voice control, remote operation.
