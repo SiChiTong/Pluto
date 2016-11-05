@@ -4,6 +4,8 @@ import glob
 import rlcompleter, readline
 import code
 import time
+import serial
+import sys
 
 class Scan:
     '''
@@ -19,6 +21,7 @@ class Scan:
         Prints all the valid subsystem ports.
         '''
         self.valids = glob.glob(self.baseAddr)
+        self.subsysName = [0] * len(self.valids)
         print self.valids
 
     def listPorts(self):
@@ -39,24 +42,41 @@ class Scan:
             if False==ser.isOpen():
                 ser.open()
             resp = []
-            t_end=time.time()+5
-            ser.write('v')
+            t_end=time.time()+10
             while time.time()<t_end:
-                if ser.isWaiting()>0:
-                    resp.append(ser.readline())
+                if ser.inWaiting()>0:
+                    ser.write("v")
+                    l = ser.readline()
+                    if "Name:" in l:
+                        self.subsysName[subsysNum]=l
+                        break
             ser.close()
-            for l in resp:
-                if "Name:" in l: 
-                    self.subsysName[subsysNum]=l
-            subsysName+=1
-            print resp
-            
+            subsysNum = subsysNum+1
+
+    def showMap(self):
+        for i in range( 0, len(self.valids) ):
+            print "Port: ", self.valids[i], "===>", self.subsysName[i]
+ 
+    def getNames(self):
+        '''
+        Returns a list of subsystem names, list index can be used
+        to find their port number from listValids()
+        '''
+        return self.subsysName
+ 
 def main():
-    readline.parse_and_bind('tab: complete')
-    vars = globals().copy()
-    vars.update(locals())
-    shell = code.InteractiveConsole(vars)
-    shell.interact()
+
+    s=Scan()
+    s.show()
+    s.assign()
+    s.showMap()
+
+    if( "-i" in sys.argv ):
+        readline.parse_and_bind('tab: complete')
+        vars = globals().copy()
+        vars.update(locals())
+        shell = code.InteractiveConsole(vars)
+        shell.interact()
 
 if __name__ == "__main__":
     main()
