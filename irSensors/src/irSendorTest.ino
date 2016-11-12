@@ -1,5 +1,5 @@
-#define NAME        "Name:Ir Sensors"
-#define VERSION     "Version:pluto-0.0.1"
+#define NAME        "Name: IrSensors"
+#define VERSION     "Version: 0.0.1"
 
 void setup() {
   Serial.begin(115200);
@@ -67,7 +67,7 @@ void serialEvent()
   if(command=='v')
   {
     Serial.print(NAME);
-    Serial.print(",");
+    Serial.print(" ");
     Serial.println(VERSION);
   }
   if(command=='h')

@@ -8,9 +8,10 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+CONFIG += -std=c++0
+
 TARGET = PlutoApp
 TEMPLATE = app
-
 
 SOURCES += main.cpp\
         mainwindow.cpp

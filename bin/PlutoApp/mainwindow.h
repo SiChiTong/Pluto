@@ -3,7 +3,10 @@
 
 #include <QMainWindow>
 
-namespace Ui {
+#include "subsystems.h"
+
+namespace Ui
+{
 class MainWindow;
 }
 
@@ -15,8 +18,13 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+public slots:
+    void searchSub();
+
+
 private:
     Ui::MainWindow *ui;
+    Pluto::Subsystems *s;
 };
 
 #endif // MAINWINDOW_H

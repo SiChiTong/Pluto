@@ -34,8 +34,8 @@
 
 #include <SoftwareSerial.h>
 
-#define NAME    "Name:Sabertooth Motor Drive"
-#define VERSION "Version:pluto-0.0.1"
+#define NAME    "Name: MotorDrive"
+#define VERSION "Version: 0.0.1"
 
 SoftwareSerial motor(5,6); // 5-orange, 6-brown
 
@@ -462,7 +462,7 @@ void serialEvent()
   if(command=='v')
   {
     Serial.print(NAME);
-    Serial.print(",");
+    Serial.print(" ");
     Serial.println(VERSION);  
   }
 

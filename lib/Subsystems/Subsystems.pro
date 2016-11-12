@@ -6,6 +6,8 @@
 
 QT       += core
 
+QMAKE_CXXFLAGS += -std=c++11
+
 TARGET = Subsystems
 TEMPLATE = lib
 CONFIG += staticlib
