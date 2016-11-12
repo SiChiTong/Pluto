@@ -6,7 +6,7 @@
 
 QT       += core
 
-QMAKE_CXXFLAGS += -std=c++11
+CONFIG += -std=c++0
 
 TARGET = Subsystems
 TEMPLATE = lib
