@@ -23,8 +23,8 @@
 //--------------------------------------------------------------
 
 
-#define NAME    "Name:Power Control System"
-#define VERSION "Version:pluto-0.0.1"
+#define NAME    "Name: PowerControl"
+#define VERSION "Version: 0.0.1"
 
 //--------------------------------------------------------------
 // Standard arduino setup routine
@@ -159,7 +159,7 @@ void serialEvent()
   if(command=='v')
   {
     Serial.print(NAME);
-    Serial.print(",");
+    Serial.print(" ");
     Serial.println(VERSION);
   }
   if(command=='h') // get help
