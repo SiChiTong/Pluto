@@ -1,1 +1,1 @@
-python $PLUTO_ROOT/scripts/pmake.py
+python $PLUTO_ROOT/scripts/pmake.py $*
