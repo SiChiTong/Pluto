@@ -1,7 +1,11 @@
 import os
 
-subprojects = ['path to dir 1'
-               'path to dir 2']
+TARGET_TYPE = <Example: "qt", "pio">
+
+
+
+subprojects = [<'path to dir 1'>
+               <'path to dir 2'>]
 
 
 

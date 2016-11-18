@@ -3,25 +3,44 @@ import sys, os
 
 cwd = os.getcwd()
 
+print "-----------------------------------------------------------"
+
 if len(sys.argv) > 1:
+    print "cleaning",os.getcwd()
+
     if sys.argv[1] == "clean":
         if len(subprojects) == 0:
-            call(["make","clean"])
-            call(["rm","Makefile"])
+
+            if TARGET_TYPE == "qt":
+
+                call(["make","clean"])
+                call(["rm","Makefile"])
+
+            if TARGET_TYPE == "pio":
+
+                print "platformio clean"
+
         else:
             for p in subprojects:
                 os.chdir(os.getcwd()+'/'+p)
-                print "cleaning",os.getcwd()
                 call(["python","pbuild","clean"])
                 os.chdir(cwd)
 
 if len(sys.argv) == 1:
+    print "building",os.getcwd()
+
     if len(subprojects) == 0:
-        call(["qmake"])
-        call(["make","all"])
+
+            if TARGET_TYPE == "qt":
+
+                call(["qmake"])
+                call(["make","all"])
+
+            if TARGET_TYPE == "pio":
+
+                print "platformio make"
     else:
         for p in subprojects:
             os.chdir(os.getcwd()+'/'+p)
-            print "building",os.getcwd()
             call(["python","pbuild"])
             os.chdir(cwd)
