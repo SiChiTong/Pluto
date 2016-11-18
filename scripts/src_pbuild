@@ -1,0 +1,27 @@
+from subprocess import call
+import sys, os
+
+cwd = os.getcwd()
+
+if len(sys.argv) > 1:
+    if sys.argv[1] == "clean":
+        if len(subprojects) == 0:
+            call(["make","clean"])
+            call(["rm","Makefile"])
+        else:
+            for p in subprojects:
+                os.chdir(os.getcwd()+'/'+p)
+                print "cleaning",os.getcwd()
+                call(["python","pbuild","clean"])
+                os.chdir(cwd)
+
+if len(sys.argv) == 1:
+    if len(subprojects) == 0:
+        call(["qmake"])
+        call(["make","all"])
+    else:
+        for p in subprojects:
+            os.chdir(os.getcwd()+'/'+p)
+            print "building",os.getcwd()
+            call(["python","pbuild"])
+            os.chdir(cwd)
