@@ -3,8 +3,8 @@ import sys, os
 
 cwd = os.getcwd()
 
-subprojects = ['bin',
-               'lib']
+subprojects = ['lib',
+               'bin']
 
 if len(sys.argv) > 1:
     if sys.argv[1] == "clean":
