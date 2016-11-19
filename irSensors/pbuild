@@ -1,13 +1,8 @@
 import os
 
-TARGET_TYPE = ""
+TARGET_TYPE = "pio"
 
-subprojects = ['lib',
-               'bin',
-               'irSensors',
-               'motorControl',
-               'nodeMcu',
-               'powerControl']
+subprojects = []
 
 
 

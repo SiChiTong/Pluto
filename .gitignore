@@ -2,3 +2,4 @@
 moc_*
 ui_*
 *.a
+*.pioenvs*
