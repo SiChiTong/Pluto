@@ -55,7 +55,7 @@ SoftwareSerial motor(5,6); // 5-orange, 6-brown
 #define ENC_M_RIGHT_B  12     // Encoder B pin for right motor
 
 // Encoder steps in one revolution
-#define STEPS_IN_ONE_REV    663
+#define STEPS_IN_ONE_REV    663 * 8
 
 // Safety switch pins
 byte SafetySwitchPins[5] = {4,7,10,11,13};

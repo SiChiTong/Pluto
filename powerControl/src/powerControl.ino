@@ -40,10 +40,6 @@ void setup()
   Serial.println("[INFO]:Initializing power relay inputs..");
   Serial.println("[INFO]:Power at relay 4 is normally enabled");
     
-  pinMode(2, OUTPUT);
-  pinMode(3, OUTPUT);
-  pinMode(4, OUTPUT);
-  pinMode(5, OUTPUT);
 //--------------------------------------------------------------
 }
 
@@ -80,6 +76,16 @@ void runDemo()
 //--------------------------------------------------------------
 void loop()
 {
+  pinMode(2, OUTPUT);
+  pinMode(3, OUTPUT);
+  pinMode(4, OUTPUT);
+  pinMode(5, OUTPUT);
+
+  digitalWrite(2, HIGH);
+  digitalWrite(3, HIGH);
+  digitalWrite(4, HIGH);
+
+  delay(1000);
 }
 
 //--------------------------------------------------------------
