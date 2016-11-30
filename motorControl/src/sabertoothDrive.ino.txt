@@ -37,8 +37,6 @@
 #define NAME    "Name: MotorDrive"
 #define VERSION "Version: 0.0.1"
 
-const char NameVersionStr[] = "Name: MotorDrive Version: 0.0.1";
-
 SoftwareSerial motor(5,6); // 5-orange, 6-brown
 
 //--------------------------------------------------------------
@@ -59,6 +57,9 @@ SoftwareSerial motor(5,6); // 5-orange, 6-brown
 // Encoder steps in one revolution
 #define STEPS_IN_ONE_REV    663 * 8
 
+// Safety switch pins
+byte SafetySwitchPins[5] = {4,7,10,11,13};
+
 //--------------------------------------------------------------
 // Standard arduino setup routine
 //--------------------------------------------------------------
@@ -69,9 +70,17 @@ void setup()
   Serial.begin(115200);
   Serial.setTimeout(10);
   
+  //------------------------------------------------------------  
+  // Initialize software serial to send commands to sabertooth
+  // controller  
+  Serial.println("[INFO]:Initializing software serial for sabertooth..");
   motor.begin(19200);  
-  delay(10);
+  delay(100);
 
+  //------------------------------------------------------------
+  //Initialize encoder requirements
+  Serial.println("[INFO]:Initializing encoder pins..");
+    
   // LEFT motor
   // Encoder pin B as input
   pinMode(ENC_M_LEFT_B, INPUT);
@@ -79,12 +88,24 @@ void setup()
   // Encoder pin B as input
   pinMode(ENC_M_RIGHT_B, INPUT);  
 
+  Serial.println("[INFO]:Initializing encoder interrupts..");
   // Attach interrupt. Gets called everytime a signal is
   // detected
   attachInterrupt(1, leftMotorMovedISR, FALLING);// int.0
   // Attach interrupt. Gets called everytime a signal is
   // detected
   attachInterrupt(0, rightMotorMovedISR, FALLING);// int.1
+
+  //------------------------------------------------------------
+  // Initializing safety switched
+  Serial.println("[INFO]:Initializing safety switches..");
+  pinMode(4, INPUT);
+  pinMode(7, INPUT);
+  pinMode(10, INPUT);
+  pinMode(11, INPUT);
+  pinMode(13, INPUT);
+
+  Serial.println("[INFO]:Initialization complete..");
 }
 
 
@@ -156,87 +177,65 @@ void stopRight()
   setRightSpeed(64);    
 }
 
-
-unsigned int LeftSteps=0;
-unsigned int RightSteps=0;
-
-unsigned int LeftDesiredSteps=0;
-unsigned int RightDesiredSteps=0;
-
-unsigned int LeftCurrMode=0;
-unsigned int RightCurrMode=0;
-
-unsigned int LeftSpeed=64;
-unsigned int RightSpeed=64;
-
-bool EnableStreaming=0;
-
-struct Update
-{
-  unsigned int leftSteps;
-  unsigned int leftSpeed;
-  unsigned int leftCurrMode;
-
-  unsigned int rightSteps;
-  unsigned int rightSpeed;
-  unsigned int rightCurrMode;
-} __attribute__ ((packed));
-
-struct Update u;
+unsigned int currLeftSpd  = 30;
+unsigned int currRightSpd = 30;
+bool trackLeft  = false;
+bool trackRight = false;
+unsigned int StepsLeft         = 0;
+unsigned int StepsRight        = 0;
+unsigned int DesiredLeftSteps  = 0;
+unsigned int DesiredRightSteps = 0;
 
 //--------------------------------------------------------------
 // ISR implementations
-// Developer note:- Never print in ISRs
 //--------------------------------------------------------------
-void leftMotorMovedISR(){ LeftSteps++; }
-void rightMotorMovedISR(){ RightSteps++; }
+void leftMotorMovedISR()
+{
+  StepsLeft++;
+  if(StepsLeft < DesiredLeftSteps)
+  {          
+      Serial.print("LS:");
+      Serial.print(StepsLeft);
+      Serial.println(":");    
+  }
+  else
+  {
+    stopLeft();    
+  }
+}
+void rightMotorMovedISR()
+{
+  StepsRight++;
+  if(StepsRight < DesiredRightSteps)
+  {          
+      Serial.print("RS:");
+      Serial.print(StepsRight);
+      Serial.println(":");
+  }
+  else
+  {
+    stopRight();    
+  }
+}
 
 //--------------------------------------------------------------
 // Arduino standard while loop
 //--------------------------------------------------------------
 void loop() 
 {
-  if(LeftSteps<LeftDesiredSteps)
+/*
+  for(int p=0; p<5; p++)
   {
-    // Increase speed
-    (LeftSpeed<63) ? LeftSpeed++ : LeftSpeed=63;
-
-    // Move left, 0:Fwd, 1:Rev
-    (0==LeftCurrMode) ? moveLeftFwd(LeftSpeed) : moveLeftRev(LeftSpeed);
+    if(HIGH == digitalRead(SafetySwitchPins[p]))
+    {
+      stopLeft();
+      stopRight();
+      Serial.print(SafetySwitchPins[p]);
+      Serial.println(":UNSAFE:");
+    }
   }
-  else
-  {
-    // Stop
-    stopLeft();
-  }
-
-  if(RightSteps<RightDesiredSteps)
-  {
-    // Increase speed
-    (RightSpeed<63) ? RightSpeed++ : RightSpeed=63;
-
-    // Move right, 0:Fwd, 1:Rev
-    (0==RightCurrMode) ? moveRightFwd(RightSpeed) : moveRightRev(RightSpeed);
-  }
-  else
-  {
-    // stop
-    stopRight();
-  }
-
-  if(1==EnableStreaming)
-  {
-    u.leftSteps = LeftSteps;
-    u.leftSpeed = LeftSpeed;
-    u.leftCurrMode = LeftCurrMode;
-
-    u.rightSteps = RightSteps;
-    u.rightSpeed = RightSpeed;
-    u.rightCurrMode = RightCurrMode;
-
-    // Send status updates
-    Serial.write( (unsigned char*)&u, sizeof(struct Update) );
-  }
+*/
+  delay(1000);
 }
 
 //--------------------------------------------------------------
@@ -258,16 +257,14 @@ void serialEvent()
       Serial.println("?");      
       return;
     }
-    LeftCurrMode=0;
-    LeftDesiredSteps=steps;
-    LeftSteps=0;
-    LeftSpeed=0;
-
-    RightCurrMode=0;
-    RightDesiredSteps=steps;
-    RightSteps=0;
-    RightSpeed=0;
-
+    moveLeftFwd(currLeftSpd);
+    moveRightFwd(currRightSpd);    
+    trackLeft = true;
+    trackRight = true;
+    DesiredLeftSteps = steps;
+    DesiredRightSteps = steps;    
+    StepsLeft = 0;
+    StepsRight = 0;    
     Serial.println(":");
     return;
   }
@@ -281,6 +278,15 @@ void serialEvent()
       Serial.println("?");      
       return;
     }
+    moveLeftRev(currLeftSpd);
+    moveRightRev(currRightSpd);    
+    trackLeft = true;
+    trackRight = true;
+    DesiredLeftSteps = steps;
+    DesiredRightSteps = steps;    
+    StepsLeft = 0;
+    StepsRight = 0;    
+    Serial.println(":");
     return;
   }
 
@@ -293,6 +299,15 @@ void serialEvent()
       Serial.println("?");      
       return;
     }
+    trackLeft = true;
+    trackRight = true;
+    DesiredLeftSteps = steps;
+    DesiredRightSteps = steps;    
+    StepsLeft = 0;
+    StepsRight = 0;    
+    moveLeftRev(currLeftSpd);
+    moveRightFwd(currRightSpd);    
+    Serial.println(":");
     return;
   }
 
@@ -305,6 +320,15 @@ void serialEvent()
       Serial.println("?");      
       return;
     }
+    moveLeftFwd(currLeftSpd);
+    moveRightRev(currRightSpd);    
+    trackLeft = true;
+    trackRight = true;
+    DesiredLeftSteps = steps;
+    DesiredRightSteps = steps;    
+    StepsLeft = 0;
+    StepsRight = 0;    
+    Serial.println(":");
     return;
   }
       
@@ -317,6 +341,11 @@ void serialEvent()
       Serial.println("?");      
       return;
     }
+    moveLeftFwd(currLeftSpd);
+    trackLeft = true;
+    DesiredLeftSteps = steps;
+    StepsLeft = 0;
+    Serial.println(":");
     return;
   }
 
@@ -329,6 +358,11 @@ void serialEvent()
       Serial.println("?");      
       return;
     }
+    moveRightFwd(currRightSpd);
+    trackRight = true;
+    DesiredRightSteps = steps;
+    StepsRight = 0;
+    Serial.println(":");
     return;
   }
 
@@ -341,6 +375,11 @@ void serialEvent()
       Serial.println("?");      
       return;
     }
+    moveLeftRev(currLeftSpd);
+    trackLeft = true;
+    DesiredLeftSteps = steps;
+    StepsLeft = 0;
+    Serial.println(":");
     return;
   }
   
@@ -353,6 +392,11 @@ void serialEvent()
       Serial.println("?");      
       return;
     }
+    moveRightRev(currRightSpd);
+    trackRight = true;
+    DesiredRightSteps = steps;
+    StepsRight = 0;
+    Serial.println(":");
     return;    
   }
       
@@ -360,22 +404,151 @@ void serialEvent()
   {
     stopLeft();
     stopRight();
+    Serial.println(":");
     return;    
   }  
 
-  if(command=='v')  // name and version of firmware
+  //--------------------------------------------------------------
+  // Speed commands
+  //--------------------------------------------------------------
+  if(command=='r')  // reset speed
   {
-    Serial.println(NameVersionStr);
+    unsigned int spd = Serial.parseInt();
+    // check for valid speed value
+    if(spd < 1 || spd > 63)
+    {
+      Serial.println("?");      
+      return;
+    }
+    currLeftSpd = spd;
+    currRightSpd = spd;    
     Serial.println(":");
+    return;
+  }
+  if(command=='t')  // reset left speed
+  {
+    unsigned int spd = Serial.parseInt();
+    // check for valid speed value
+    if(spd < 1 || spd > 63)
+    {
+      Serial.println("?");      
+      return;
+    }
+    currLeftSpd = spd;
+    Serial.println(":");
+    return;
+  }  
+  if(command=='y')  // reset right speed
+  {
+    unsigned int spd = Serial.parseInt();
+    // check for valid speed value
+    if(spd < 1 || spd > 63)
+    {
+      Serial.println("?");      
+      return;
+    }
+    currLeftSpd = spd;
+    Serial.println(":");
+    return;
+  }  
+  if(command=='f')  // get current speed
+  {
+    Serial.print(currLeftSpd);
+    Serial.print(":");
+    Serial.print(currRightSpd);
+    Serial.println(":");
+    return;
+  }
+  if(command=='v')
+  {
+    Serial.print(NAME);
+    Serial.print(" ");
+    Serial.println(VERSION);  
   }
 
-  if(command=='p')  // Enable streaming of status
+  //--------------------------------------------------------------
+  // Help
+  //--------------------------------------------------------------
+  if(command=='H')  // help
   {
-      EnableStreaming=1;
-  }
-  if(command=='o')  // Disable streaming of status
-  {
-      EnableStreaming=0;
+Serial.println(
+"--------------------------------------------------------------"
+);
+Serial.println(
+"Platform: Pluto"
+);
+Serial.println(
+"Program that runs on Arduino uno and controls sabertooth"
+);
+Serial.println(
+"2x12 Amps motor driver."
+);
+Serial.println(
+"--------------------------------------------------------------"
+);
+Serial.println(
+"Usage:"
+);
+
+Serial.println(
+"Serial commands at 115200:"
+);
+Serial.println(
+"w<steps> -Move forward"
+);
+Serial.println(
+"s<steps> -Move reverse"
+);
+Serial.println(
+"a<steps> -Move left"
+);
+Serial.println(
+"d<steps> -Move right"
+);
+Serial.println(
+"q<steps> -Move left forward"
+);
+Serial.println(
+"z<steps> -Move left reverse"
+);
+Serial.println(
+"e<steps> -Move right forward"
+);
+Serial.println(
+"c<steps> -Move right reverse"
+);
+Serial.println(
+"x        -Stop"
+);
+Serial.println(
+"r<speed> -Reset speed"
+);
+Serial.println(
+"t<speed> -Reset speed of left"
+);
+Serial.println(
+"y<speed> -Reset speed of right"
+);
+Serial.println(
+"f        -Get current speed, returns- 'L30:R40' (for example)"
+);
+Serial.println(
+"4,7,10,11,13 are for safety switches"
+);
+Serial.println(
+"Example: w20 -Moves 20 steps forward"
+);
+Serial.println(
+"         r40 -Resets speed to 40 "
+);
+Serial.println(
+"              (Speed range: 1-63 in both directions)"
+);
+Serial.println(
+"--------------------------------------------------------------"
+);
+    Serial.println(":");
+    return;
   }
 
   // Should never return here
