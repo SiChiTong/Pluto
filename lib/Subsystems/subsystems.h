@@ -1,33 +1,23 @@
 #ifndef SUBSYSTEMS_H
 #define SUBSYSTEMS_H
 
+#include "resources.h"
+
 #include <QObject>
 #include <QList>
 #include <stdio.h>
+#include <QSerialPort>
+#include <QTimer>
 
 namespace Pluto
 {
 
-class System
-{
-public:
-    System(const char *ssData, const char *portName)
-    {
-        char _name[64];
-        char _version[64];
+#define DRIVE_PORT    "/dev/ttyUSB0"
+#define NUMATO64_PORT "/dev/ttyACM0"
+#define RELAY_PORT    "/dev/ttyACM1"
 
-        sscanf(ssData, "Name: %s Version: %s", _name, _version);
-
-        name = QString(_name);
-        version = QString(_version);
-        port = QString(portName);
-    }
-
-    QString name;
-    QString version;
-    QString port;
-};
-
+// Forward declaration.
+class Status;
 
 //-------------------------------------------------------------------
 // Class to find the connected subsystems and populate local objects.
@@ -39,19 +29,39 @@ class Subsystems : public QObject
 
 public:
 
+    // Constructor
     Subsystems(const char *name);
+
+    // getSensor()
+    // Returns the current value of specified sensor.
+    // Refer to resources.h
+    int getSensor(int type, int number);
+
 
 public slots:
 
+    // connectSubsystems()
+    // Connects to all available subsystems.
     void connectSubsystems();
-    void searchSubsystems();
+    
+    // disconnectSubsystems()
+    // Disconnects all subsystems.
     void disconnectSubsystems();
 
-    QList<System*> getSubsystemList();
-
 private:
+    Status      *mStatus;
+    QSerialPort *mNumato64Port;
+    QSerialPort *mDrivePort;
+    QSerialPort *mRelayPort;
+    QTimer      *mStatusTimer;
 
-    QList<System*> mSubsystemList;
+    bool mConnected;
+
+    void _readNumato64Update();
+    void _readDriveUpdate();
+    void _readRelayUpdate();
+
+    void _handleStatusTimer();
 };
 
 }
