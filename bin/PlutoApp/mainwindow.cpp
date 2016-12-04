@@ -10,6 +10,8 @@ MainWindow::MainWindow(QWidget *parent) :
     s = new Pluto::Subsystems("subsystems");
 
     QObject::connect(ui->searchSubButton, SIGNAL(clicked()), this, SLOT(searchSub()) );
+
+    s->connectSubsystems();
 }
 
 void MainWindow::searchSub()
@@ -17,6 +19,7 @@ void MainWindow::searchSub()
     ui->sub1Label->setText("");
     ui->sub1Label->setText("");
     ui->sub1Label->setText("");
+    s->disconnectSubsystems();
 }
 
 MainWindow::~MainWindow()
