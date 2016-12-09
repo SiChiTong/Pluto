@@ -1,0 +1,14 @@
+import os
+
+TARGET_TYPE = ""
+
+subprojects = []
+
+
+
+
+
+#******************************************
+# Source pbuild file.
+execfile(os.environ["PLUTO_ROOT"] + "/scripts/src_pbuild")
+#******************************************
