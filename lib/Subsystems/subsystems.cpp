@@ -83,25 +83,15 @@ void Subsystems::connectSubsystems()
             this, &Subsystems::_handleStatusTimer);
 
     mRelayPort->write("gpio notify on\n");
+    mStatusTimer->start(1000);
     mConnected = true;
 }
 
 void Subsystems::_readNumato64Update()
 {
-    static int sensorId = 0;
-    QByteArray a = mNumato64Port->readAll();
-    a[a.size()] = 0;
+    QString a = mNumato64Port->readAll();
     
-    if( 16 < a.size() )
-    {
-        std::cout<<"Numato64 Digital:"<<qPrintable(a)<<std::endl;
-        sensorId = 0;
-    }
-    else
-    {
-        std::cout<<"Numato64 Analog "<<sensorId<<":"<<qPrintable(a)<<std::endl;
-        sensorId++;
-    }
+    std::cout<<"Numato64 Digital:"<<qPrintable(a)<<std::endl;
     std::cout.flush();
 }
 
@@ -123,14 +113,14 @@ void Subsystems::_readRelayUpdate()
 
 void Subsystems::_handleStatusTimer()
 {
-    mNumato64Port->write("gpio readall\n");
-    mNumato64Port->write("adc read 00\n");
-    mNumato64Port->write("adc read 01\n");
-    mNumato64Port->write("adc read 02\n");
+    static int sensorId = 0;
+    if(sensorId==0)
     mNumato64Port->write("adc read 03\n");
+    else
     mNumato64Port->write("adc read 04\n");
-    mDrivePort->write("?\n");
-    mRelayPort->write("?\n");
+
+    sensorId++;
+    if(sensorId==2) sensorId=0;
 }
 
 void Subsystems::disconnectSubsystems()

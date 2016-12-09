@@ -6,9 +6,6 @@ if len(sys.argv) < 2:
     print "Usage: python testSerial.py /dev/ttyUSB0"
     sys.exit()
 
-if sys.argv[1] != "/dev/ttyUSB0" and sys.argv[1] != "/dev/ttyUSB1" and sys.argv[1] != "/dev/ttyUSB2":
-    sys.exit()
-
 ser = serial.Serial(
       port=sys.argv[1],
       baudrate=115200,
