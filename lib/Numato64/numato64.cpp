@@ -22,7 +22,7 @@ int Numato64::connectToBoard(QString portName, int baudrate)
     if (mSerialPort->isOpen()) disconnectFromBoard();
 
     // Set to default if not specified.
-    if (portName=="undefined") portName = DEFAULT_NUMATO64_PORT;
+    if (portName=="") portName = DEFAULT_NUMATO64_PORT;
     if (baudrate==0)  baudrate = DEFAULT_BAUDRATE;
 
     // Update private variables.
@@ -30,8 +30,8 @@ int Numato64::connectToBoard(QString portName, int baudrate)
     mBaudrate = baudrate;
 
     // Configure port.
-    mSerialPort->setPortName(portName);
-    mSerialPort->setBaudRate(baudrate);
+    mSerialPort->setPortName(mPortName);
+    mSerialPort->setBaudRate(mBaudrate);
     mSerialPort->setDataBits(QSerialPort::Data8);
     mSerialPort->setParity(QSerialPort::NoParity);
     mSerialPort->setStopBits(QSerialPort::OneStop);
@@ -82,8 +82,8 @@ Numato64::Status Numato64::getUpdatedData()
 void Numato64::_readUpdate()
 {
     QString a = mSerialPort->readAll().trimmed();
-    int gpioNum=0;
-    int value=0;
+    int gpioNum = 0;
+    int value = 0;
     bool valueChanged = false;
 
     if (a.contains("gpio"))

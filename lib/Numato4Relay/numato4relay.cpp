@@ -22,7 +22,7 @@ int Numato4Relay::connectToBoard(QString portName, int baudrate)
     if (mSerialPort->isOpen()) disconnectFromBoard();
 
     // Set to default if not specified.
-    if (portName=="undefined") portName = DEFAULT_NUMATO4RELAY_PORT;
+    if (portName=="") portName = DEFAULT_NUMATO4RELAY_PORT;
     if (baudrate==0)  baudrate = DEFAULT_BAUDRATE;
 
     // Update private variables.
@@ -30,8 +30,8 @@ int Numato4Relay::connectToBoard(QString portName, int baudrate)
     mBaudrate = baudrate;
 
     // Configure port.
-    mSerialPort->setPortName(portName);
-    mSerialPort->setBaudRate(baudrate);
+    mSerialPort->setPortName(mPortName);
+    mSerialPort->setBaudRate(mBaudrate);
     mSerialPort->setDataBits(QSerialPort::Data8);
     mSerialPort->setParity(QSerialPort::NoParity);
     mSerialPort->setStopBits(QSerialPort::OneStop);
@@ -82,11 +82,39 @@ Numato4Relay::Status Numato4Relay::getUpdatedData()
 void Numato4Relay::_readUpdate()
 {
     QString a = mSerialPort->readAll().trimmed();
+    int relayNum = 0;
+    char relayValueStr[8];
+    int relayValue = 0;
+    bool valueChanged = false;
+
+    if (a.contains("relay"))
+    {
+        sscanf(a.toStdString().c_str(), "relay read %d %s", &relayNum, relayValueStr);
+        if (QString(relayValueStr).contains("on"))
+        {
+            relayValue = 1;
+        }
+        else
+        {
+            relayValue = 0;
+        }
+
+        if (mStatus.relay[relayNum] != relayValue)
+        {
+            mStatus.relay[relayNum] = relayValue;
+            valueChanged = true;
+        }
+    }
 
 #if DEBUG==1
-    std::cout<<qPrintable(a)<<std::endl;
+    std::cout<<"relay:"<<relayNum<<" val:"<<relayValue<<std::endl;
     std::cout.flush();
 #endif
+
+    if (valueChanged)
+    {
+        emit updateAvailable();
+    }
 }
 
 void Numato4Relay::_queryUpdate()

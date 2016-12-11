@@ -26,7 +26,8 @@ public:
     class Status
     {
     public:
-
+        int relay[4];    // 0-4 relay
+        int gpio[8];     // 0-7 gpio
     };
 
     // Connects to the board.
