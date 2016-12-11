@@ -26,7 +26,7 @@ public:
     {
     public:
         int analog[24];    // 0-23  analog inputs
-        bool digital[40];  // 24-63 digital i/o
+        int digital[40];   // 24-63 digital i/o
     };
 
     // Connects to the board.

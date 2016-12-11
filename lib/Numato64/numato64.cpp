@@ -1,5 +1,8 @@
 #include "numato64.h"
 #include <iostream>
+#include <stdio.h>
+
+#define DEBUG    1
 
 namespace Pluto
 {
@@ -78,9 +81,44 @@ Numato64::Status Numato64::getUpdatedData()
 
 void Numato64::_readUpdate()
 {
-    QString a = mSerialPort->readAll();
-    std::cout<<"Numato64:"<<qPrintable(a)<<std::endl;
+    QString a = mSerialPort->readAll().trimmed();
+    int gpioNum=0;
+    int value=0;
+    bool valueChanged = false;
+
+    if (a.contains("gpio"))
+        sscanf(a.toStdString().c_str(), "gpio read %d %d", &gpioNum, &value);
+    else
+        sscanf(a.toStdString().c_str(), "adc read %d %d", &gpioNum, &value);
+
+#if DEBUG==1
+    std::cout<<"gpio:"<<gpioNum<<" val:"<<value<<std::endl;
     std::cout.flush();
+#endif
+
+    // Fill the data structure
+    if (gpioNum < 24)
+    {
+        if (mStatus.analog[gpioNum] != value)
+        {
+            valueChanged = true;
+        }
+        mStatus.analog[gpioNum] = value;
+    }
+    else
+    {
+        if (mStatus.digital[gpioNum-24] != value)
+        {
+            valueChanged = true;
+        }
+        mStatus.digital[gpioNum-24] = value;
+    }
+
+    // Emit signal if value changed.
+    if (valueChanged)
+    {
+        emit updateAvailable();
+    }
 }
 
 void Numato64::_queryUpdate()
