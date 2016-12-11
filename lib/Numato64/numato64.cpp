@@ -46,7 +46,7 @@ int Numato64::connectToBoard(QString portName, int baudrate)
     connect(&mStatusTimer, &QTimer::timeout,
             this, &Numato64::_queryUpdate);
 
-    mStatusTimer.start(1000);
+    mStatusTimer.start(10);
 
     mConnected = true;
     return 1;
@@ -86,16 +86,22 @@ void Numato64::_readUpdate()
 void Numato64::_queryUpdate()
 {
     static int sensorId = 0;
+    QString command("");
 
     if (sensorId < 24)
     {
-        QString command("adc read ");
-        command += QString::number(sensorId) + "\n";
+        command = "adc read ";
+        if (sensorId<10)
+        {
+            command += "0";
+        }
+        command += QString::number(sensorId) + "\r";
         mSerialPort->write(command.toStdString().c_str());
     }
     else
     {
-        mSerialPort->write("gpio readall\n");
+        command = "gpio read " + QString::number(sensorId) + "\r";
+        mSerialPort->write(command.toStdString().c_str());
     }
     sensorId++;
     if(sensorId==64) sensorId=0;

@@ -5,7 +5,7 @@
 #include <QtSerialPort/QSerialPort>
 #include <QTimer>
 
-#define DEFAULT_NUMATO64_PORT "/dev/ttyACM0"
+#define DEFAULT_NUMATO64_PORT "/dev/ttyACM1"
 #define DEFAULT_BAUDRATE      115200
 namespace Pluto
 {
