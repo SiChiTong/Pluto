@@ -22,7 +22,6 @@ Subsystems::Subsystems(const char *name)
     std::cout<<qPrintable(objectName())<<" created"<<std::endl;
 
     mStatus = new Status();
-    mNumato64Port = new QSerialPort(this);
     mDrivePort    = new QSerialPort(this);
     mRelayPort    = new QSerialPort(this);
     mStatusTimer  = new QTimer(this);
@@ -40,13 +39,6 @@ int Subsystems::getSensor(int type, int number)
 
 void Subsystems::connectSubsystems()
 {
-    mNumato64Port->setPortName(NUMATO64_PORT);
-    mNumato64Port->setBaudRate(115200);
-    mNumato64Port->setDataBits(QSerialPort::Data8);
-    mNumato64Port->setParity(QSerialPort::NoParity);
-    mNumato64Port->setStopBits(QSerialPort::OneStop);
-    mNumato64Port->setFlowControl(QSerialPort::NoFlowControl);
-
     mDrivePort->setPortName(DRIVE_PORT);
     mDrivePort->setBaudRate(115200);
     mDrivePort->setDataBits(QSerialPort::Data8);
@@ -61,38 +53,12 @@ void Subsystems::connectSubsystems()
     mRelayPort->setStopBits(QSerialPort::OneStop);
     mRelayPort->setFlowControl(QSerialPort::NoFlowControl);
 
-    mNumato64Port->open(QIODevice::ReadWrite);
-    mDrivePort->open(QIODevice::ReadWrite);
-    mRelayPort->open(QIODevice::ReadWrite);
-
-    if( ! mNumato64Port->isOpen() ||
-        ! mDrivePort->isOpen() ||
-        ! mRelayPort->isOpen() )
+    if( ! mNumato64.connectToBoard() )
     {
-        std::cerr<<"unable to open usb serial device"<<std::endl;
+        std::cerr<<"failed opening Numato64"<<std::endl;
     }
 
-    connect(mNumato64Port, &QSerialPort::readyRead,
-            this, &Subsystems::_readNumato64Update);
-    connect(mDrivePort, &QSerialPort::readyRead,
-            this, &Subsystems::_readDriveUpdate);
-    connect(mRelayPort, &QSerialPort::readyRead,
-            this, &Subsystems::_readRelayUpdate);
-
-    connect(mStatusTimer, &QTimer::timeout,
-            this, &Subsystems::_handleStatusTimer);
-
-    mRelayPort->write("gpio notify on\n");
-    mStatusTimer->start(1000);
     mConnected = true;
-}
-
-void Subsystems::_readNumato64Update()
-{
-    QString a = mNumato64Port->readAll();
-    
-    std::cout<<"Numato64 Digital:"<<qPrintable(a)<<std::endl;
-    std::cout.flush();
 }
 
 void Subsystems::_readDriveUpdate()
@@ -113,19 +79,11 @@ void Subsystems::_readRelayUpdate()
 
 void Subsystems::_handleStatusTimer()
 {
-    static int sensorId = 0;
-    if(sensorId==0)
-    mNumato64Port->write("adc read 03\n");
-    else
-    mNumato64Port->write("adc read 04\n");
 
-    sensorId++;
-    if(sensorId==2) sensorId=0;
 }
 
 void Subsystems::disconnectSubsystems()
 {
-    mNumato64Port->close();
     mDrivePort->close();
     mRelayPort->close();
     mConnected = false;

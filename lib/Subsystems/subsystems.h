@@ -9,11 +9,12 @@
 #include <QSerialPort>
 #include <QTimer>
 
+#include <numato64.h>
+
 namespace Pluto
 {
 
 #define DRIVE_PORT    "/dev/ttyUSB0"
-#define NUMATO64_PORT "/dev/ttyACM0"
 #define RELAY_PORT    "/dev/ttyACM1"
 
 // Forward declaration.
@@ -50,14 +51,13 @@ public slots:
 
 private:
     Status      *mStatus;
-    QSerialPort *mNumato64Port;
+    Numato64 mNumato64;
     QSerialPort *mDrivePort;
     QSerialPort *mRelayPort;
     QTimer      *mStatusTimer;
 
     bool mConnected;
 
-    void _readNumato64Update();
     void _readDriveUpdate();
     void _readRelayUpdate();
 

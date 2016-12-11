@@ -2,9 +2,7 @@ import os
 
 TARGET_TYPE = ""
 
-subprojects = ['Numato64',
-               'Subsystems']
-
+subprojects = []
 
 
 

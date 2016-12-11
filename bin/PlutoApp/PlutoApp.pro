@@ -18,3 +18,10 @@ INCLUDEPATH += $$PWD/../../lib/Subsystems
 DEPENDPATH += $$PWD/../../lib/Subsystems
 
 unix:!macx: PRE_TARGETDEPS += $$PWD/../../lib/Subsystems/libSubsystems.a
+
+unix:!macx: LIBS += -L$$PWD/../../lib/Numato64/ -lNumato64
+
+INCLUDEPATH += $$PWD/../../lib/Numato64
+DEPENDPATH += $$PWD/../../lib/Numato64
+
+unix:!macx: PRE_TARGETDEPS += $$PWD/../../lib/Numato64/libNumato64.a
