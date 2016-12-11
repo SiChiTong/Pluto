@@ -86,13 +86,19 @@ void Numato64::_readUpdate()
 void Numato64::_queryUpdate()
 {
     static int sensorId = 0;
-    if(sensorId==0)
-    mSerialPort->write("adc read 03\n");
-    else
-    mSerialPort->write("adc read 04\n");
 
+    if (sensorId < 24)
+    {
+        QString command("adc read ");
+        command += QString::number(sensorId) + "\n";
+        mSerialPort->write(command.toStdString().c_str());
+    }
+    else
+    {
+        mSerialPort->write("gpio readall\n");
+    }
     sensorId++;
-    if(sensorId==2) sensorId=0;
+    if(sensorId==64) sensorId=0;
 }
 
 } // namespace Pluto
