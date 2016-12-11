@@ -1,32 +1,32 @@
-#ifndef NUMATO64_H
-#define NUMATO64_H
+#ifndef NUMATO4RELAY_H
+#define NUMATO4RELAY_H
 
 #include <QObject>
 #include <QtSerialPort/QSerialPort>
 #include <QTimer>
 
-#define DEFAULT_NUMATO64_PORT "/dev/ttyACM1"
-#define DEFAULT_BAUDRATE      115200
+#define DEFAULT_NUMATO4RELAY_PORT   "/dev/ttyACM0"
+#define DEFAULT_BAUDRATE            115200
+
 namespace Pluto
 {
 
-class Numato64 : public QObject
+class Numato4Relay : public QObject
 {
     Q_OBJECT
-
 public:
+
     //-------------------------------------------------------------------
     // Public Api
     //-------------------------------------------------------------------
 
     // Constructor
-    Numato64(QObject *parent=0);
+    Numato4Relay(QObject *parent=0);
 
     class Status
     {
     public:
-        int analog[24];    // 0-23  analog inputs
-        int digital[40];   // 24-63 digital i/o
+
     };
 
     // Connects to the board.
@@ -47,9 +47,8 @@ public:
 
 signals:
 
-    // Emitted when new analog and digital io data is available.
+    // Emitted when new io data is available.
     void updateAvailable();
-
 
 
     //-------------------------------------------------------------------
@@ -70,4 +69,4 @@ private:
 
 } // namespace Pluto
 
-#endif // NUMATO64_H
+#endif // NUMATO4RELAY_H

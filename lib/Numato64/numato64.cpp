@@ -22,7 +22,7 @@ int Numato64::connectToBoard(QString portName, int baudrate)
     if (mSerialPort->isOpen()) disconnectFromBoard();
 
     // Set to default if not specified.
-    if (portName=="") portName = DEFAULT_NUMATO64_PORT;
+    if (portName=="undefined") portName = DEFAULT_NUMATO64_PORT;
     if (baudrate==0)  baudrate = DEFAULT_BAUDRATE;
 
     // Update private variables.

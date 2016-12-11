@@ -1,10 +1,8 @@
 import os
 
-TARGET_TYPE = ""
+TARGET_TYPE = "qt"
 
-subprojects = ['Numato64',
-               'Numato4Relay',
-               'Subsystems']
+subprojects = []
 
 
 
