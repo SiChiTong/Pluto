@@ -42,6 +42,17 @@ public:
     // Returns the Status object containing updated data.
     Status getUpdatedData();
 
+    // setRelay()
+    // Sets the status of specified relay to on/off
+    // on: true, off:false
+    void setRelay(int relayNum, bool status);
+
+    // setGpio()
+    // Sets the status of specified gpio to on/off
+    // on: true, off:false
+    void setGpio(int gpioNum, bool status);
+
+
     //-------------------------------------------------------------------
     // Public Signals
     //-------------------------------------------------------------------

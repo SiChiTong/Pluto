@@ -133,4 +133,20 @@ void Numato4Relay::_queryUpdate()
     if(gpioId==4) gpioId=0;
 }
 
+void Numato4Relay::setRelay(int relayNum, bool status)
+{
+    QString statusStr("");
+    (true==status) ? statusStr="on " : statusStr="off ";
+    QString command = "relay "+statusStr+QString::number(relayNum)+"\r";
+    mSerialPort->write(command.toStdString().c_str());
+}
+
+void Numato4Relay::setGpio(int gpioNum, bool status)
+{
+    QString statusStr("");
+    (true==status) ? statusStr="set " : statusStr="clear ";
+    QString command = "gpio "+statusStr+QString::number(gpioNum)+"\r";
+    mSerialPort->write(command.toStdString().c_str());
+}
+
 } // namespace Pluto
