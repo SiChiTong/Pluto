@@ -4,3 +4,6 @@ ui_*
 *.a
 *.pioenvs*
 */PlutoApp
+cscope.out
+*.user
+tags
