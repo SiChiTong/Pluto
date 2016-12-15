@@ -48,8 +48,8 @@ int main(int argc, char *argv[])
 	//Wait 10 ms before sending another command to device
 	sleepms(10);
 
-	cout<<"- SetCommand(_GO, 1, 1)...";
-	if((status = device.SetCommand(_GO, 1, 1)) != RQ_SUCCESS)
+	cout<<"- SetCommand(_GO, 2, 150)...";
+	if((status = device.SetCommand(_GO, 2, 150)) != RQ_SUCCESS)
 		cout<<"failed --> "<<status<<endl;
 	else
 		cout<<"succeeded."<<endl;
