@@ -4,6 +4,7 @@ TARGET_TYPE = ""
 
 subprojects = ['Numato64',
                'Numato4Relay',
+               'Roboteq',
                'Subsystems']
 
 

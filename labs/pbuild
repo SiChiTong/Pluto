@@ -2,7 +2,7 @@ import os
 
 TARGET_TYPE = ""
 
-subprojects = []
+subprojects = ["RoboteqGui"]
 
 
 
