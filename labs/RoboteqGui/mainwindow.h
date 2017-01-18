@@ -22,6 +22,7 @@ public:
 private:
     Ui::MainWindow *ui;
     Roboteq device;
+    int mCurrSpeed;
 
     void connectRoboteq();
     void disconnectRoboteq();
@@ -31,6 +32,7 @@ private:
     void left();
     void right();
     void stop();
+    void setSpeed(int spd);
 };
 
 #endif // MAINWINDOW_H

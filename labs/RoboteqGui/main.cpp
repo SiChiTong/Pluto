@@ -1,6 +1,10 @@
 #include "mainwindow.h"
 #include <QApplication>
 
+#include <iostream>
+#include <stdio.h>
+#include <string.h>
+
 using namespace std;
 
 int main(int argc, char *argv[])
@@ -10,7 +14,7 @@ int main(int argc, char *argv[])
     w.show();
 
 /*
-//    string response = "";
+    //    string response = "";
     Roboteq device;
     int status = device.Connect("/dev/ttyACM0");
 
