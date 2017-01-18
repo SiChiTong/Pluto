@@ -3,6 +3,10 @@
 
 #include <QMainWindow>
 
+#include "roboteq.h"
+#include "ErrorCodes.h"
+#include "Constants.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -17,6 +21,16 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    Roboteq device;
+
+    void connectRoboteq();
+    void disconnectRoboteq();
+
+    void forward();
+    void reverse();
+    void left();
+    void right();
+    void stop();
 };
 
 #endif // MAINWINDOW_H

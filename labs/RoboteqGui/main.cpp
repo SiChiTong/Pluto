@@ -1,14 +1,6 @@
 #include "mainwindow.h"
 #include <QApplication>
 
-#include <iostream>
-#include <stdio.h>
-#include <string.h>
-
-#include "roboteq.h"
-#include "ErrorCodes.h"
-#include "Constants.h"
-
 using namespace std;
 
 int main(int argc, char *argv[])
@@ -17,6 +9,7 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
 
+/*
 //    string response = "";
     Roboteq device;
     int status = device.Connect("/dev/ttyACM0");
@@ -62,6 +55,6 @@ int main(int argc, char *argv[])
         cout<<"succeeded."<<endl;
 
     device.Disconnect();
-
+*/
     return a.exec();
 }
