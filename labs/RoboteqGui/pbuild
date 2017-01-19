@@ -1,6 +1,8 @@
 import os
 
+TARGET      = "RoboteqGui"
 TARGET_TYPE = "qt"
+DEPLOY_TYPE = "labs"
 
 subprojects = []
 

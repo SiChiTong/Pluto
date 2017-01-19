@@ -1,6 +1,7 @@
 import os
 
 TARGET_TYPE = "qt"
+DEPLOY_TYPE = ""
 
 subprojects = []
 

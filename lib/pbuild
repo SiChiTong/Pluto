@@ -1,6 +1,7 @@
 import os
 
 TARGET_TYPE = ""
+DEPLOY_TYPE = ""
 
 subprojects = ['Numato64',
                'Numato4Relay',

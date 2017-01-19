@@ -1,5 +1,5 @@
 from subprocess import call
-import sys, os
+import sys, os, shutil
 
 cwd = os.getcwd()
 
@@ -7,15 +7,15 @@ print "-----------------------------------------------------------"
 
 
 if len(sys.argv) > 1:
-    print "cleaning",os.getcwd()
 
     if sys.argv[1] == "clean":
+        print "cleaning",os.getcwd()
         if len(subprojects) == 0:
 
             if TARGET_TYPE == "qt":
-
-                call(["make","clean"])
-                call(["rm","Makefile"])
+                if os.path.exists(os.getcwd()+'/Makefile'):
+                    call(["make","clean"])
+                    call(["rm","Makefile"])
 
             if TARGET_TYPE == "pio":
 
@@ -27,15 +27,27 @@ if len(sys.argv) > 1:
                 call(["python","pbuild","clean"])
                 os.chdir(cwd)
 
+    if sys.argv[1] == "deploy":
+        if len(subprojects) == 0:
+            if DEPLOY_TYPE == "bin":
+                if TARGET != None:
+                    i = os.getcwd()+'/'+TARGET
+                    o = os.environ.get('PLUTO_ROOT')+'/deploy/bin/'
+                    print "deploy",i," -> ",o
+                    os.system('cp ' + i + ' ' + o)
 
+            if DEPLOY_TYPE == "labs":
+                if TARGET != None:
+                    i = os.getcwd()+'/'+TARGET
+                    o = os.environ.get('PLUTO_ROOT')+'/deploy/labs/'
+                    print "deploy",i," -> ",o
+                    os.system('cp ' + i + ' ' + o)
 
-
-
-
-
-
-
-
+        else:
+            for p in subprojects:
+                os.chdir(os.getcwd()+'/'+p)
+                call(["python","pbuild","deploy"])
+                os.chdir(cwd)
 
 
 if len(sys.argv) == 1:

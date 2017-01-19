@@ -1,13 +1,15 @@
 import os
 
 TARGET_TYPE = ""
+DEPLOY_TYPE = ""
 
 subprojects = ['lib',
                'bin',
-               'irSensors',
-               'motorControl',
-               'nodeMcu',
-               'powerControl']
+               'labs']
+#               'irSensors',
+#               'motorControl',
+#               'nodeMcu',
+#               'powerControl',
 
 
 

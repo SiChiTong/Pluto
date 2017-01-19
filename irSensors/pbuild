@@ -1,6 +1,7 @@
 import os
 
 TARGET_TYPE = "pio"
+DEPLOY_TYPE = ""
 
 subprojects = []
 
