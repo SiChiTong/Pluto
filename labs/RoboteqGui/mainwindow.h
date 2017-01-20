@@ -33,6 +33,8 @@ private:
     void right();
     void stop();
     void setSpeed(int spd);
+    void setAcc1(int acc);
+    void setAcc2(int acc);
 };
 
 #endif // MAINWINDOW_H

@@ -37,6 +37,10 @@ MainWindow::MainWindow(QWidget *parent) :
             this, &MainWindow::stop);
     connect(ui->slider_speed, &QSlider::valueChanged,
             this, &MainWindow::setSpeed);
+    connect(ui->slider_acc_1, &QSlider::valueChanged,
+            this, &MainWindow::setAcc1);
+    connect(ui->slider_acc_2, &QSlider::valueChanged,
+            this, &MainWindow::setAcc2);
 }
 
 MainWindow::~MainWindow()
@@ -102,4 +106,20 @@ void MainWindow::setSpeed(int spd)
     cout<<"Setting speed: "<<spd<<endl;
     mCurrSpeed = spd;
     ui->label_speed->setText(QString::number(spd));
+}
+
+void MainWindow::setAcc1(int acc)
+{
+    cout<<"Setting acc 1: "<<acc<<endl;
+//    device.SetCommand(_ACCEL, 1, acc);
+//    device.SetCommand(_DECEL, 1, acc);
+    ui->label_acc_1->setText(QString::number(acc));
+}
+
+void MainWindow::setAcc2(int acc)
+{
+    cout<<"Setting acc 2: "<<acc<<endl;
+//    device.SetCommand(_ACCEL, 2, acc);
+//    device.SetCommand(_DECEL, 2, acc);
+    ui->label_acc_2->setText(QString::number(acc));
 }
