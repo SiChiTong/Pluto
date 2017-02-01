@@ -21,9 +21,14 @@ HEADERS  += mainwindow.h\
 FORMS    += mainwindow.ui
 
 
+# Roboteq
 unix:!macx: LIBS += -L$$PWD/../../lib/Roboteq/ -lRoboteq
-
 INCLUDEPATH += $$PWD/../../lib/Roboteq
 DEPENDPATH += $$PWD/../../lib/Roboteq
-
 unix:!macx: PRE_TARGETDEPS += $$PWD/../../lib/Roboteq/libRoboteq.a
+
+# QTheme
+unix:!macx: LIBS += -L$$PWD/../../lib/QPlutoTheme/ -lQPlutoTheme
+INCLUDEPATH += $$PWD/../../lib/QPlutoTheme
+DEPENDPATH += $$PWD/../../lib/QPlutoTheme
+unix:!macx: PRE_TARGETDEPS += $$PWD/../../lib/QPlutoTheme/libQPlutoTheme.a
