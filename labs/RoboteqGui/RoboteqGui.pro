@@ -20,7 +20,6 @@ HEADERS  += mainwindow.h\
 
 FORMS    += mainwindow.ui
 
-
 # Roboteq
 unix:!macx: LIBS += -L$$PWD/../../lib/Roboteq/ -lRoboteq
 INCLUDEPATH += $$PWD/../../lib/Roboteq
